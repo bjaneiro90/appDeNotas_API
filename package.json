@@ -1,0 +1,43 @@
+{
+  "devDependencies": {
+    "eslint": "^8.31.0",
+    "nodemon": "^2.0.22",
+    "prettier": "^2.8.1"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "cors": "^2.8.5",
+    "date-fns": "^2.29.3",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-fileupload": "^1.4.0",
+    "joi": "^17.7.0",
+    "jsonwebtoken": "^9.0.0",
+    "morgan": "^1.10.0",
+    "mysql2": "^2.3.3",
+    "nanoid": "^3.3.4",
+    "path": "^0.12.7",
+    "sharp": "^0.31.3",
+    "uuid": "^8.1.0"
+  },
+  "scripts": {
+    "initDB": "node ./db/initDB.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "name": "proyecto2_azmaed",
+  "description": "DESCRIPCIÓN",
+  "version": "1.0.0",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edurnehugo/proyecto2_AzMAEd.git"
+  },
+  "author": "Azahara Urosas, Marc García, Edurne Huertos",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/edurnehugo/proyecto2_AzMAEd/issues"
+  },
+  "homepage": "https://github.com/edurnehugo/proyecto2_AzMAEd#readme"
+}
