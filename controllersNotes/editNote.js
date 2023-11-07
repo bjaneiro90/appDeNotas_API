@@ -1,6 +1,9 @@
+const Sharp = require('sharp');
+const {nanoid} = require('nanoid')
 const { getConnection } = require('../db/db');
-const { generateError } = require('../helpers');
+const { generateError, createPathIfNotExists } = require('../helpers');
 const { editEntrySchema } = require('../validators/notesValidators');
+const path = require('path');
 
 const editNote = async (req, res, next) => {
   let connection;
@@ -9,9 +12,22 @@ const editNote = async (req, res, next) => {
     connection = await getConnection();
 
     await editEntrySchema.validateAsync(req.body);
+    let imageFileName;
 
+    if(req.files && req.files.image) {
+      const uploadsDir = path.join(__dirname, "../uploads")
+
+      await createPathIfNotExists(uploadsDir)
+
+      const image = Sharp(req.files.image.data);
+      image.resize(1000)
+
+      imageFileName = `${nanoid(24)}.jpg`
+
+      await image.toFile(path.join(uploadsDir, imageFileName))
+    }
     // Sacamos los datos
-    let { title, text, category_id } = req.body;
+    let { title, text, image=imageFileName, category_id } = req.body;
 
     const { id } = req.params;
     const user_id = req.auth.id;
@@ -20,12 +36,14 @@ const editNote = async (req, res, next) => {
 
     const [[result]] = await connection.query(
       `
-    SELECT id, title, text, category_id, user_id
+    SELECT id, title, text, category_id, image, user_id
     FROM notes
     WHERE id=?
     `,
       [id]
     );
+
+    console.log(result)
 
     if (result.length === 0) {
       throw generateError(`La nota no existe en la base de datos`, 404);
@@ -52,11 +70,12 @@ const editNote = async (req, res, next) => {
     // Ejecutar la query de edición de la categoria
     await connection.query(
       `
-      UPDATE notes SET title=?, text=?, category_id=?
+      UPDATE notes SET title=?, text=?, image=?, category_id=?
       WHERE id=?`,
       [
         title || result.title,
         text || result.text,
+        image || result.image,
         category_id || result.category_id,
         id,
       ]
@@ -70,6 +89,7 @@ const editNote = async (req, res, next) => {
         id,
         title,
         text,
+        image,
         category_id,
       },
     });

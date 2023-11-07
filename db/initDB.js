@@ -43,6 +43,7 @@ async function main() {
             dateCreate DATETIME,
             title varchar (150),
             text text(50000),
+            image VARCHAR(100),
             private BOOLEAN default true, 
             user_id INTEGER NOT NULL,
             category_id INTEGER NOT NULL,

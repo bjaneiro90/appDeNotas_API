@@ -1,6 +1,9 @@
+const sharp = require('sharp');
+const {nanoid} = require('nanoid')
 const { getConnection } = require('../db/db');
-const { showDebug, generateError } = require('../helpers');
+const { showDebug, generateError, createPathIfNotExists } = require('../helpers');
 const { newEntrySchema } = require('../validators/notesValidators');
+const path = require('path');
 
 const createNote = async (req, res, next) => {
   let connection;
@@ -8,7 +11,22 @@ const createNote = async (req, res, next) => {
   try {
     connection = await getConnection();
     await newEntrySchema.validateAsync(req.body);
-    const { title, text, category_id } = req.body;
+    
+    let imageFileName;
+
+    if(req.files && req.files.image) {
+      const uploadsDir = path.join(__dirname, "../uploads")
+
+      await createPathIfNotExists(uploadsDir)
+
+      const image = sharp(req.files.image.data);
+      image.resize(1000)
+
+      imageFileName = `${nanoid(24)}.jpg`
+
+      await image.toFile(path.join(uploadsDir, imageFileName))
+    }
+    const { title, text, image=imageFileName, category_id } = req.body;
     const id = req.auth.id;
 
     const [category] = await connection.query(
@@ -17,15 +35,16 @@ const createNote = async (req, res, next) => {
       [category_id]
     );
 
+
     if (!category.length) {
       throw generateError('esta categoría no exite', 400);
     }
 
     //Ejecutar la query
     const [row] = await connection.query(
-      'INSERT INTO notes (title, text,  user_id, category_id, dateCreate) VALUES (?,?,?,?, UTC_TIMESTAMP)',
+      'INSERT INTO notes (title, text, image, user_id, category_id, dateCreate) VALUES (?,?,?,?,?, UTC_TIMESTAMP)',
 
-      [title, text, id, category_id]
+      [title, text, image, id, category_id]
     );
     res.send({
       status: 'ok',

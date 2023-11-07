@@ -13,7 +13,7 @@ const getNote = async (req, res, next) => {
     /*     const user_id = req.auth.id; */
 
     const [result] = await connection.query(
-      `SELECT n.user_id, n.id, title, text,  dateCreate,
+      `SELECT n.user_id, n.id, title, text, image, dateCreate,
       category_id, private, c.category FROM notes n LEFT JOIN categories c on n.category_id = c.id WHERE n.id= ?;
       `,
       [id]
